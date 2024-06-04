@@ -136,11 +136,21 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F7xx/Include \
 -IDrivers/CMSIS/Include
 
+# float option
+# -Wfloat-conversion			doubleからfloatへ暗黙の型変換が発生したときに警告
+# -Wunsuffixed-float-constants	浮動小数点の定数に型を示すサフィックスがないことを警告
+# -Wdouble-promotion			内部演算でflaotからdoubleへ暗黙の型変換が発生したときに警告
+# -fsingle-precision-constant	浮動小数点の計算は全て単精度（float）で実施
+
+FLOAT-OPT += -Wfloat-conversion
+FLOAT-OPT += -Wunsuffixed-float-constants
+FLOAT-OPT += -Wdouble-promotion
+#FLOAT-OPT += -fsingle-precision-constant
 
 # compile gcc flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections $(FLOAT-OPT)
 
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -std=gnu17 $(FLOAT-OPT)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
@@ -160,7 +170,7 @@ LDSCRIPT = STM32F767ZITx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections,-print-memory-usage
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -198,6 +208,12 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	
 $(BUILD_DIR):
 	mkdir $@		
+
+#######################################
+# Program OpenOCD
+#######################################
+upload: build/$(TARGET).bin
+	openocd -f board/st_nucleo_f7.cfg -c "reset_config trst_only combined" -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # clean up

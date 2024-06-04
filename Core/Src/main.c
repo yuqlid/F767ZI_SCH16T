@@ -26,7 +26,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +59,14 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+#ifdef __GNUC__
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+void __io_putchar(uint8_t ch) {
+  HAL_UART_Transmit(&huart3, &ch, 1, 10);
+}
 /* USER CODE END 0 */
 
 /**
@@ -95,7 +103,8 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+  setbuf(stdout, NULL);
+  printf("\r\n%s,%s\r\n",__DATE__,__TIME__);
   /* USER CODE END 2 */
 
   /* Infinite loop */
