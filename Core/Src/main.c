@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <stdint.h>
+#include "SCH16T.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +50,14 @@
 
 /* USER CODE BEGIN PV */
 
+typedef struct {
+  int32_t x;
+  int32_t y;
+  int32_t z;
+} xyz_t;
+
+static xyz_t acc;
+static xyz_t gyro;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,15 +114,28 @@ int main(void)
   /* USER CODE BEGIN 2 */
   setbuf(stdout, NULL);
   printf("\r\n%s,%s\r\n",__DATE__,__TIME__);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_Delay(100);
+  transfer(en_sensor);
+  HAL_Delay(215);
+  transfer(eoi);
+  HAL_Delay(3);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    acc.x = getInt32data(transfer(read_acc_y1));
+    acc.y = getInt32data(transfer(read_acc_z1));
+    acc.z = getInt32data(transfer(read_rate_x1));
+    gyro.x = getInt32data(transfer(read_rate_y1));
+    gyro.y = getInt32data(transfer(read_rate_z1));
+    gyro.z = getInt32data(transfer(read_acc_x1));
+    HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
