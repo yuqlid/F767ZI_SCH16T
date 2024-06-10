@@ -25,9 +25,13 @@ extern "C"
     {
         return ((int32_t)((frame << 4) & 0xFfFfF000UL)) >> 12;
     }
+    static inline uint16_t getUint32data(uint64_t frame)
+    {
+        return (uint16_t)((frame >> 8) & 0x000FfFfFUL);
+    }
     static inline uint16_t getUint16data(uint64_t frame)
     {
-        return (uint16_t)((frame >> 8) & 0xFfFfUL);
+        return (uint16_t)((frame >> 8) & 0x0000FfFfUL);
     }
 
     static const uint64_t en_sensor = 0x0D68000001D3;
@@ -38,6 +42,7 @@ extern "C"
     static const uint64_t read_acc_x1 = 0x0108000000F6;
     static const uint64_t read_acc_y1 = 0x014800000001;
     static const uint64_t read_acc_z1 = 0x018800000037;
+    static const uint64_t read_temperature = 0x0408000000B1;
 
 #ifdef __cplusplus
 }

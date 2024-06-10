@@ -58,6 +58,7 @@ typedef struct {
 
 static xyz_t acc;
 static xyz_t gyro;
+static uint32_t temperature;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,7 +135,9 @@ int main(void)
     acc.z = getInt32data(transfer(read_rate_x1));
     gyro.x = getInt32data(transfer(read_rate_y1));
     gyro.y = getInt32data(transfer(read_rate_z1));
-    gyro.z = getInt32data(transfer(read_acc_x1));
+    gyro.z = getInt32data(transfer(read_temperature));
+    temperature = (getUint32data(transfer(read_acc_x1)) >> 4);
+
     HAL_Delay(10);
   }
   /* USER CODE END 3 */
